@@ -22,7 +22,10 @@ with zipfile.ZipFile(ZIP_PATH, "r") as z:
     z.extractall()
 
 # 3) Carregar DataFrame
-df = pd.read_csv("df_final.csv")
+df = pd.read_csv("df_final.csv
+
+st.write("**Colunas disponíveis no DataFrame:**", df.columns.tolist())
+st.stop()  # interrompe a execução aqui para você ver as colunas
 
 # 4) Cálculo Top 10 clusters
 cluster_stats = (
