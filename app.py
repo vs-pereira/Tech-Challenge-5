@@ -7,7 +7,7 @@ import io
 import os
 
 st.title("Perfis Ideais de Candidatos - Datathon FIAP")
-st.markdown("Aplicativo que mostra os resultados de clusterização…")
+st.markdown("Aplicativo que mostra os resultados de clusterização conforme candidatos aprovados")
 
 # 1) Baixar do Drive com gdown (substitua pelo seu ID)
 DRIVE_ID = "1IqYZm_6uuanwHy9H0Azfv452K9nQlEWK"
