@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import gdown, zipfile, os
-
+ 
 st.set_page_config(page_title="Perfis Ideais - Datathon FIAP", layout="wide")
 st.title("Perfis Ideais de Candidatos - Datathon FIAP")
 st.markdown("Aplicativo que mostra os resultados da clusterização…")
