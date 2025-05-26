@@ -8,8 +8,8 @@ st.title("Perfis Ideais de Candidatos - Datathon FIAP")
 st.markdown("Aplicativo que mostra os resultados da clusterização…")
 
 # 1) Baixa e extrai df_final.csv
-DRIVE_ID = "1IqYZm_6uuanwHy9H0Azfv452K9nQlEWK"
-ZIP_PATH = "df_final.zip"
+DRIVE_ID = "17AnJzOfGSymSabFN0kp2l_IxF7j6CmJc"
+ZIP_PATH = "df_final2.zip"
 if not os.path.exists(ZIP_PATH):
     gdown.download(f"https://drive.google.com/uc?id={DRIVE_ID}", ZIP_PATH, quiet=False)
 
