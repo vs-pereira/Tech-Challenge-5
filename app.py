@@ -31,7 +31,7 @@ stats = (
     .groupby('cluster')['is_hired']
     .agg(total_hired='sum', total='count')
     .assign(pct=lambda d: 100 * d['total_hired'] / d['total'])
-    .sort_values('pct', ascending=False)  # Ordenação inicial para facilitar o nlargest
+    .sort_values('pct', ascending=False)  
 )
 
 # --- 5) Selecionar e ordenar Top 10 ---
@@ -43,7 +43,7 @@ top10_plot = top10.sort_values('pct', ascending=True)
 fig = px.bar(
     top10_plot,
     x='pct',
-    y='cluster',  # Mantemos o tipo original (não converter para string)
+    y='cluster',
     orientation='h',
     text='pct',
     labels={'cluster':'Cluster', 'pct':'% Contratados'},
@@ -53,7 +53,7 @@ fig = px.bar(
 fig.update_traces(
     texttemplate='%{text:.1f}%', 
     textposition='outside',
-    marker_color='#4CAF50'  # Cor opcional para melhor visualização
+    marker_color='#4CAF50'  
 )
 
 # Forçar ordem dos clusters no eixo Y conforme o DataFrame
