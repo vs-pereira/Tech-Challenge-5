@@ -26,24 +26,20 @@ if 'cluster' not in df.columns or 'is_hired' not in df.columns:
     st.stop()
 
 # --- 4) Cálculo das estatísticas por cluster ---
-df['cluster'] = df['cluster'].astype(str)  # Converter para string
-
+# Converter cluster para string e calcular métricas
+df['cluster'] = df['cluster'].astype(str)
 stats = (
-    df
-    .groupby('cluster', as_index=False)
-    .agg(
-        total_hired=('is_hired', 'sum'),
-        total=('is_hired', 'count')
-    )
+    df.groupby('cluster', as_index=False)
+    .agg(total_hired=('is_hired', 'sum'), total=('is_hired', 'count'))
     .assign(pct=lambda d: 100 * d['total_hired'] / d['total'])
-    .sort_values('pct', ascending=False)
+    .sort_values('pct', ascending=False)  # Ordenar do maior para o menor
 )
 
-# --- 5) Selecionar Top 10 ---
-top10 = stats.head(10)
-top10_plot = top10.sort_values('pct', ascending=True)  # Ordenar para o gráfico
+# --- 5) Selecionar e preparar Top 10 ---
+top10 = stats.head(10)  # Pegar os 10 primeiros (já ordenados)
+top10_plot = top10.copy()  # Não reordenar aqui!
 
-# --- 6) Gráfico com ordem categórica forçada ---
+# --- 6) Gráfico com ordem categórica explícita ---
 fig = px.bar(
     top10_plot,
     x='pct',
@@ -51,22 +47,22 @@ fig = px.bar(
     orientation='h',
     text='pct',
     labels={'pct': '% Contratados', 'cluster': 'Cluster'},
-    category_orders={'cluster': top10_plot['cluster'].tolist()}
+    category_orders={'cluster': top10_plot['cluster'].tolist()}  # Ordem original do DataFrame
 )
 
-# Ajustes finais
+# Ajustes críticos para ordenação
+fig.update_layout(
+    yaxis={'categoryorder': 'array', 'categoryarray': top10_plot['cluster'].tolist()[::-1]},  # Inverter a ordem
+    xaxis_title='% de Contratação',
+    yaxis_title='Cluster',
+    height=500
+)
+
+# Ajustar texto e cores
 fig.update_traces(
     texttemplate='%{text:.1f}%', 
     textposition='outside',
-    marker_color='#1f77b4'
-)
-
-fig.update_layout(
-    xaxis_title='% de Contratação',
-    yaxis_title='Cluster',
-    yaxis={'categoryorder': 'array', 'categoryarray': top10_plot['cluster'].tolist()},
-    height=500,
-    margin=dict(l=100, r=20, t=40, b=40)
+    marker_color='#4CAF50'
 )
 
 # --- 7) Exibir no Streamlit ---
