@@ -33,49 +33,40 @@ stats = (
 )
 stats['pct'] = 100 * stats.total_hired / stats.total
 
-# --- 5) Seleciona e ordena os Top 10 clusters ---
-# A) Seleciona Top10 e prepara ordem inversa para o horizontal
-top10 = (
-    stats
-    .sort_values('pct', ascending=False)
-    .head(10)
-    .reset_index()
-)
-# Converter para string (importantíssimo)
+# --- 5) Top 10 clusters (decrescente) ---
+top10 = stats.sort_values('pct', ascending=False).head(10).reset_index()
+
+# Converter cluster para str (evita reordenação automática)
 top10['cluster'] = top10['cluster'].astype(str)
 
-# B) Criar lista de categorias invertida (maior no topo)
-order = top10['cluster'].tolist()[::-1]
+# --- 6) Preparar para plot (ordenar ascendente para que o maior fique no topo) ---
+top10_plot = top10.sort_values('pct', ascending=True)
 
-# C) Reordenar o DataFrame de baixo para cima
-top10 = top10.set_index('cluster').loc[order].reset_index()
-
-# --- Plot com Plotly Express ---
+# --- 7) Plot horizontal simples ---
 fig = px.bar(
-    top10,
+    top10_plot,
     x='pct',
     y='cluster',
     orientation='h',
-    text='pct',
-    labels={'cluster':'Cluster','pct':'% Contratados'},
-    category_orders={'cluster': order}
+    text=top10_plot['pct'].map(lambda v: f"{v:.1f}%"),
+    labels={'cluster':'Cluster','pct':'% Contratados'}
 )
 
-# D) Formatação do texto (percentual) e posição
-fig.update_traces(texttemplate='%{text:.1f}%', textposition='outside')
+# Textos fora das barras
+fig.update_traces(textposition='outside')
 
-# E) Ajustes finais de layout
+# Títulos
 fig.update_layout(
     xaxis_title='% de Contratação',
     yaxis_title='Cluster',
     margin=dict(l=60, r=20, t=40, b=40)
 )
 
-# F) Exibir no Streamlit
 st.subheader("Top 10 Clusters por % de Contratação")
 st.plotly_chart(fig, use_container_width=True)
 
-# 6) Conclusões finais detalhadas
+
+# 8) Conclusões finais detalhadas
 st.subheader("Conclusões Finais")
 
 st.markdown("""
