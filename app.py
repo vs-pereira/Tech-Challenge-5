@@ -31,34 +31,38 @@ stats = (
     .groupby('cluster')['is_hired']
     .agg(total_hired='sum', total='count')
     .assign(pct=lambda d: 100 * d['total_hired'] / d['total'])
+    .sort_values('pct', ascending=False)  # Ordenação inicial para facilitar o nlargest
 )
 
 # --- 5) Selecionar e ordenar Top 10 ---
 top10 = stats.nlargest(10, 'pct').reset_index()
-# Para plot horizontal com maior % no topo, ordene ascendente
+# Ordenar para plot (maior % no topo do gráfico)
 top10_plot = top10.sort_values('pct', ascending=True)
-
-# Converter cluster para string para manter a ordem
-top10_plot['cluster'] = top10_plot['cluster'].astype(str)
 
 # --- 6) Construir o gráfico ---
 fig = px.bar(
     top10_plot,
     x='pct',
-    y='cluster',
+    y='cluster',  # Mantemos o tipo original (não converter para string)
     orientation='h',
     text='pct',
     labels={'cluster':'Cluster', 'pct':'% Contratados'},
 )
 
-# Formatar rótulos como porcentagem e posicionar fora da barra
-fig.update_traces(texttemplate='%{text:.1f}%', textposition='outside')
+# Ajustes estéticos
+fig.update_traces(
+    texttemplate='%{text:.1f}%', 
+    textposition='outside',
+    marker_color='#4CAF50'  # Cor opcional para melhor visualização
+)
 
-# Ajustar layout (títulos e margens)
+# Forçar ordem dos clusters no eixo Y conforme o DataFrame
 fig.update_layout(
     xaxis_title='% de Contratação',
     yaxis_title='Cluster',
-    margin=dict(l=80, r=20, t=40, b=40)
+    yaxis={'categoryorder': 'array', 'categoryarray': top10_plot['cluster'].tolist()},
+    margin=dict(l=80, r=20, t=40, b=40),
+    height=500  # Altura fixa para melhor proporção
 )
 
 # --- 7) Exibir no Streamlit ---
