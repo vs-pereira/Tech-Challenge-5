@@ -26,43 +26,38 @@ if 'cluster' not in df.columns or 'is_hired' not in df.columns:
     st.stop()
 
 # --- 4) Cálculo das estatísticas por cluster ---
+df['cluster'] = df['cluster'].astype(str) 
+
 stats = (
     df
-    .groupby('cluster')['is_hired']
-    .agg(total_hired='sum', total='count')
+    .groupby('cluster', as_index=False)['is_hired'] 
+    .agg(total_hired=('is_hired', 'sum'), total=('is_hired', 'count'))
     .assign(pct=lambda d: 100 * d['total_hired'] / d['total'])
-    .sort_values('pct', ascending=False)  
+    .sort_values('pct', ascending=False)
 )
 
-# --- 5) Selecionar e ordenar Top 10 ---
-top10 = stats.nlargest(10, 'pct').reset_index()
-# Ordenar para plot (maior % no topo do gráfico)
+# --- 5) Selecionar Top 10 (garantindo 10 clusters) ---
+top10 = stats.head(10) 
 top10_plot = top10.sort_values('pct', ascending=True)
 
-# --- 6) Construir o gráfico ---
+# --- 6) Gráfico com ordem categórica forçada ---
 fig = px.bar(
     top10_plot,
     x='pct',
     y='cluster',
     orientation='h',
     text='pct',
-    labels={'cluster':'Cluster', 'pct':'% Contratados'},
+    labels={'pct': '% Contratados', 'cluster': 'Cluster'},
+    category_orders={'cluster': top10_plot['cluster'].tolist()} 
 )
 
-# Ajustes estéticos
-fig.update_traces(
-    texttemplate='%{text:.1f}%', 
-    textposition='outside',
-    marker_color='#4CAF50'  
-)
-
-# Forçar ordem dos clusters no eixo Y conforme o DataFrame
+# Ajustar texto e layout
+fig.update_traces(texttemplate='%{text:.1f}%', textposition='outside')
 fig.update_layout(
     xaxis_title='% de Contratação',
     yaxis_title='Cluster',
     yaxis={'categoryorder': 'array', 'categoryarray': top10_plot['cluster'].tolist()},
-    margin=dict(l=80, r=20, t=40, b=40),
-    height=500  # Altura fixa para melhor proporção
+    height=500
 )
 
 # --- 7) Exibir no Streamlit ---
