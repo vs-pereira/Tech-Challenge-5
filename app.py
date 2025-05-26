@@ -64,9 +64,11 @@ st.plotly_chart(fig, use_container_width=True)
 st.subheader("📝 Conclusões Finais")
 st.markdown("""
 **1. Perfil Técnico de Alta Contratação (Cluster 120)**  
-  - **Certificações**: SQL Server, Oracle, Linux/ITIL.  
-  - **Áreas**: Desenvolvimento > Projetos > Testes.  
-  - **Inglês**: Básico/Intermediário suficiente.
+  - **Certificações**: 
+      Foco em bancos de dados: SQL Server (MS 70-431), Oracle (DBA, Solaris)
+      Foco em infraestrutura: Linux (LPIC I), ITIL v3
+  - **Atuações-chave**: Desenvolvimento/Programação (14/45), Gestão de Projetos (8/45) e Qualidade/Testes (4/45).  
+  - **Inglês**: Básico e Intermediário predominam, enquanto Avançado/Fluente não é critério obrigatório.
 
 **2. Micro-certificações**  
   - 100% dos contratados possuem “outras_certificacoes” (cursos rápidos, workshops).
