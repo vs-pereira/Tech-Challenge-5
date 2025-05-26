@@ -34,29 +34,44 @@ stats = (
 stats['pct'] = 100 * stats.total_hired / stats.total
 
 # --- 5) Seleciona e ordena os Top 10 clusters ---
-# Após calcular 'stats' com total de contratados e porcentagem por cluster:
-top10 = stats.sort_values('pct', ascending=False).head(10).reset_index()
-
-# Garantir que os clusters são strings (evita reordenação indesejada por Plotly)
+# A) Seleciona Top10 e prepara ordem inversa para o horizontal
+top10 = (
+    stats
+    .sort_values('pct', ascending=False)
+    .head(10)
+    .reset_index()
+)
+# Converter para string (importantíssimo)
 top10['cluster'] = top10['cluster'].astype(str)
 
-# Criar gráfico de barras horizontal com Plotly Express
+# B) Criar lista de categorias invertida (maior no topo)
+order = top10['cluster'].tolist()[::-1]
+
+# C) Reordenar o DataFrame de baixo para cima
+top10 = top10.set_index('cluster').loc[order].reset_index()
+
+# --- Plot com Plotly Express ---
 fig = px.bar(
-    top10, 
-    x='pct', 
-    y='cluster', 
-    orientation='h', 
-    text='pct', 
-    labels={'cluster': 'Cluster', 'pct': '% Contratados'}
+    top10,
+    x='pct',
+    y='cluster',
+    orientation='h',
+    text='pct',
+    labels={'cluster':'Cluster','pct':'% Contratados'},
+    category_orders={'cluster': order}
 )
 
-# Formatar rótulos de texto como porcentagem com uma casa decimal e posicioná-los fora das barras
+# D) Formatação do texto (percentual) e posição
 fig.update_traces(texttemplate='%{text:.1f}%', textposition='outside')
 
-# Ajustar títulos dos eixos e garantir que o maior % fique no topo do gráfico
-fig.update_layout(xaxis_title='% Contratação', yaxis_title='Cluster', 
-                  yaxis={'categoryorder': 'total ascending'})
+# E) Ajustes finais de layout
+fig.update_layout(
+    xaxis_title='% de Contratação',
+    yaxis_title='Cluster',
+    margin=dict(l=60, r=20, t=40, b=40)
+)
 
+# F) Exibir no Streamlit
 st.subheader("Top 10 Clusters por % de Contratação")
 st.plotly_chart(fig, use_container_width=True)
 
