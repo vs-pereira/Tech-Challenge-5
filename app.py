@@ -34,12 +34,11 @@ stats = (
       .assign(pct=lambda d: 100*d['total_hired']/d['total'])
 )
 
-# --- 5) Selecionar Top 10 e definir ordem ---
+# --- 5) Plot horizontal
 top10 = stats.sort_values('pct', ascending=False).head(10)
-# Ordem invertida para que o maior % fique no topo na barra horizontal
+
 order = top10['cluster'].tolist()[::-1]
 
-# --- 6) Plot horizontal apenas com o Top 10 ---
 fig = px.bar(
     top10,
     x='pct',
@@ -50,7 +49,6 @@ fig = px.bar(
     category_orders={'cluster': order}
 )
 
-# Forçar o Plotly a usar exatamente essa ordem no eixo Y
 fig.update_layout(
     yaxis={'categoryorder':'array', 'categoryarray': order},
     xaxis_title='% de Contratação',
@@ -65,10 +63,10 @@ fig.update_traces(
     textposition='outside'
 )
 
-st.subheader("Top 10 Clusters por % de Contratação")
+st.subheader("Clusters vs. % de Contratação")
 st.plotly_chart(fig, use_container_width=True)
 
-# 8) Conclusões finais (mantido igual)
+# 6) Conclusões finais (mantido igual)
 st.subheader("Conclusões Finais")
 st.markdown("""
 **1. Perfil Técnico de Alta Contratação (Cluster 120)**  
