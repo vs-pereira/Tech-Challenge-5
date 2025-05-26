@@ -61,7 +61,7 @@ st.subheader("Clusters vs. % de Contratação")
 st.plotly_chart(fig, use_container_width=True)
 
 # --- 7) Conclusões finais ---
-st.subheader("Conclusões Finais")
+st.subheader("📝 Conclusões Finais")
 st.markdown("""
 **1. Perfil Técnico de Alta Contratação (Cluster 120)**  
   - **Certificações**: SQL Server, Oracle, Linux/ITIL.  
