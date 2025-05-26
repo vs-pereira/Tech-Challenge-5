@@ -15,3 +15,7 @@ Este repositório contém o projeto de clusterização de candidatos para a empr
 
 - `requirements.txt`  
   Lista de dependências necessárias para rodar o app.
+
+- `Arquivos .json brutos e versão pós-processamento`
+  Pasta com arquivos utilizados no trabalho e o arquivo pós-processamento utilizado para o streamlit:
+  https://drive.google.com/drive/folders/1fmmmO3ar4oizrVJ3H6vNGmQstd3aFu9V
