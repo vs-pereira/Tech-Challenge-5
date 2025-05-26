@@ -3,69 +3,68 @@ import pandas as pd
 import plotly.express as px
 import gdown, zipfile, os
 
-# Configuração de página
+# --- 1) Configuração da página ---
 st.set_page_config(page_title="Perfis Ideais - Datathon FIAP", layout="wide")
 st.title("Perfis Ideais de Candidatos - Datathon FIAP")
 st.markdown("Aplicativo que apresenta os resultados da clusterização e perfil dos candidatos com maior taxa de contratação.")
 
-# 1) Baixar e extrair df_final.csv
+# --- 2) Download e extração do ZIP ---
 DRIVE_ID = "17AnJzOfGSymSabFN0kp2l_IxF7j6CmJc"
 ZIP_PATH = "df_final2.zip"
+CSV_NAME = "df_final.csv"
+
 if not os.path.exists(ZIP_PATH):
     gdown.download(f"https://drive.google.com/uc?id={DRIVE_ID}", ZIP_PATH, quiet=False)
 
 with zipfile.ZipFile(ZIP_PATH, "r") as z:
     z.extractall()
 
-# 2) Carregar o DataFrame final
-df = pd.read_csv("df_final.csv")
-
-# 3) Validar colunas
-if 'cluster' not in df.columns or 'is_hired' not in df.columns:
-    st.error("O CSV precisa ter as colunas 'cluster' e 'is_hired'. Gere novamente o df_final.csv após essas colunas existirem.")
+# --- 3) Carregar e validar o DataFrame ---
+df = pd.read_csv(CSV_NAME)
+if not {'cluster','is_hired'}.issubset(df.columns):
+    st.error("O CSV precisa conter as colunas 'cluster' e 'is_hired'.")
     st.stop()
 
-# --- 4) Cálculo das estatísticas por cluster ---
-# Converter cluster para string e calcular métricas
+# --- 4) Cálculo das métricas por cluster ---
 df['cluster'] = df['cluster'].astype(str)
 stats = (
     df.groupby('cluster', as_index=False)
-    .agg(total_hired=('is_hired', 'sum'), total=('is_hired', 'count'))
-    .assign(pct=lambda d: 100 * d['total_hired'] / d['total'])
-    .sort_values('pct', ascending=False)  # Ordenar do maior para o menor
+      .agg(total_hired=('is_hired','sum'),
+           total=('is_hired','count'))
+      .assign(pct=lambda d: 100*d['total_hired']/d['total'])
 )
 
-# --- 5) Selecionar e preparar Top 10 ---
-top10 = stats.head(10)  # Pegar os 10 primeiros (já ordenados)
-top10_plot = top10.copy()  # Não reordenar aqui!
+# --- 5) Selecionar Top 10 e definir ordem ---
+top10 = stats.sort_values('pct', ascending=False).head(10)
+# Ordem invertida para que o maior % fique no topo na barra horizontal
+order = top10['cluster'].tolist()[::-1]
 
-# --- 6) Gráfico com ordem categórica explícita ---
+# --- 6) Plot horizontal apenas com o Top 10 ---
 fig = px.bar(
-    top10_plot,
+    top10,
     x='pct',
     y='cluster',
     orientation='h',
-    text='pct',
-    labels={'pct': '% Contratados', 'cluster': 'Cluster'},
-    category_orders={'cluster': top10_plot['cluster'].tolist()}  # Ordem original do DataFrame
+    text=top10['pct'].map(lambda v: f"{v:.1f}%"),
+    labels={'pct':'% Contratados','cluster':'Cluster'},
+    category_orders={'cluster': order}
 )
 
-# Ajustes críticos para ordenação
+# Forçar o Plotly a usar exatamente essa ordem no eixo Y
 fig.update_layout(
-    yaxis={'categoryorder': 'array', 'categoryarray': top10_plot['cluster'].tolist()[::-1]},  # Inverter a ordem
+    yaxis={'categoryorder':'array', 'categoryarray': order},
     xaxis_title='% de Contratação',
     yaxis_title='Cluster',
+    margin=dict(l=80, r=20, t=40, b=40),
     height=500
 )
 
-# Ajustar texto e cores
+# Estilizar as barras e textos
 fig.update_traces(
-    texttemplate='%{text:.1f}%', 
-    textposition='outside',
-    marker_color='#4CAF50'
+    marker_color='#4CAF50',
+    textposition='outside'
 )
 
-# --- 7) Exibir no Streamlit ---
 st.subheader("Top 10 Clusters por % de Contratação")
 st.plotly_chart(fig, use_container_width=True)
 
