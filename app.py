@@ -34,11 +34,11 @@ stats = (
       .assign(pct=lambda d: 100*d['total_hired']/d['total'])
 )
 
-# --- 5) Plot horizontal
+# --- 5) Selecionar Top 10 e preparar ordem para o gráfico ---
 top10 = stats.sort_values('pct', ascending=False).head(10)
-
 order = top10['cluster'].tolist()[::-1]
 
+# --- 6) Plot horizontal do Top 10 ---
 fig = px.bar(
     top10,
     x='pct',
@@ -48,7 +48,6 @@ fig = px.bar(
     labels={'pct':'% Contratados','cluster':'Cluster'},
     category_orders={'cluster': order}
 )
-
 fig.update_layout(
     yaxis={'categoryorder':'array', 'categoryarray': order},
     xaxis_title='% de Contratação',
@@ -56,39 +55,47 @@ fig.update_layout(
     margin=dict(l=80, r=20, t=40, b=40),
     height=500
 )
-
-# Estilizar as barras e textos
-fig.update_traces(
-    marker_color='#4CAF50',
-    textposition='outside'
-)
+fig.update_traces(marker_color='#4CAF50', textposition='outside')
 
 st.subheader("Clusters vs. % de Contratação")
 st.plotly_chart(fig, use_container_width=True)
 
-# 6) Conclusões finais (mantido igual)
+# --- 7) Conclusões finais ---
 st.subheader("Conclusões Finais")
 st.markdown("""
 **1. Perfil Técnico de Alta Contratação (Cluster 120)**  
-  1.1. **Certificações**  
-   - SQL Server (MS 70-431) e Oracle (DBA/Solaris) aparecem repetidamente.  
-   - Linux LPIC I e ITIL v3 sugerem domínio de infraestrutura.  
-  1.2. **Área de Atuação**  
-   - Desenvolvimento/Programação é majoritário.  
-   - Projetos, Qualidade/Testes e Processos complementam o perfil.  
-  1.3. **Inglês**  
-   - Básico e Intermediário são suficientes; poucos possuem fluência total.
+  - **Certificações**: SQL Server, Oracle, Linux/ITIL.  
+  - **Áreas**: Desenvolvimento > Projetos > Testes.  
+  - **Inglês**: Básico/Intermediário suficiente.
 
-**2. Importância de Micro-Certificações**  
-  - 100 % dos contratados têm “outras_certificacoes” (cursos rápidos, workshops, treinamentos internos).  
-  - Isso indica valor decisivo de aprendizado contínuo.
+**2. Micro-certificações**  
+  - 100% dos contratados possuem “outras_certificacoes” (cursos rápidos, workshops).
 
-**3. Recomendações para Recrutamento**  
-  3.1. **Priorizar** candidatos com certificações formais em bancos de dados e infraestrutura.  
-  3.2. **Não exigir** inglês avançado: foco no domínio técnico específico.  
-  3.3. **Valorizar** micro-certificações e capacidade de aprendizado acelerado.  
+**3. Recomendações**  
+  1. Priorização de certificações formais em bancos de dados e infraestrutura.  
+  2. Não exigir inglês avançado.  
+  3. Valorizar aprendizado contínuo.
 
-**4. Próximos Passos Analíticos**  
-  - Incorporar variáveis de **soft skills** (colaboração, comunicação) para perfis não-técnicos.  
-  - Refinar clusterização (ex.: ajustar `min_cluster_size` no HDBSCAN) para descobrir subgrupos relevantes.  
+**4. Próximos Passos**  
+  - Incluir variáveis de soft skills.  
+  - Refinar parâmetros de clusterização para subgrupos.
+""")
+
+# --- 8) Nova seção: Sobre o Método de Clusterização ---
+st.subheader("🔍 Sobre o Método de Clusterização")
+st.markdown("""
+**O que é clusterização?**  
+A clusterização é uma técnica de **aprendizado não supervisionado** que agrupa observações (neste caso, candidatos) com **características semelhantes** em “clusters” (grupos). Em vez de prever um resultado, ela identifica **padrões** e **semelhanças** nos dados por meio de métricas de distância.
+
+**Por que usamos clusterização aqui?**  
+- Para **descobrir perfis** de candidatos que se comportam de forma similar durante o processo seletivo.  
+- Identificar **segmentos** com **alta taxa de contratação** (Top 10) e contrastá-los com grupos de baixo sucesso.  
+- Ajudar o RH a **direcionar** esforços de triagem e entrevistas para perfis mais promissores.
+
+**O que esperávamos atingir?**  
+1. **Perfil Ideal**: Mostrar quais combinações de certificações, áreas e níveis de inglês levam a maiores chances de contratação.  
+2. **Eficiência**: Reduzir tempo e custo de recrutamento ao focar em candidatos que se encaixam nos clusters de sucesso.  
+3. **Insights de Aprendizado**: Enxergar padrões que não seriam óbvios em uma simples análise univariada, como a influência de “outras_certificacoes” no sucesso.
+
+Com essa abordagem, transformamos dados históricos de contratações em **insights acionáveis** para otimizar os processos de seleção.  
 """)
