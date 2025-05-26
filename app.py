@@ -64,7 +64,7 @@ st.plotly_chart(fig, use_container_width=True)
 st.subheader("Conclusões Finais")
 
 st.markdown("""
-**1. Perfil Técnico de Alta Contratação (Clusters 120, 40, 117, 10)**  
+**1. Perfil Técnico de Alta Contratação (Cluster 120)**  
 
   1.1. **Certificações**  
    - SQL Server (MS 70-431) e Oracle (DBA/Solaris) aparecem repetidamente.  
