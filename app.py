@@ -30,41 +30,40 @@ stats = (
     df
     .groupby('cluster')['is_hired']
     .agg(total_hired='sum', total='count')
+    .assign(pct=lambda d: 100 * d['total_hired'] / d['total'])
 )
-stats['pct'] = 100 * stats.total_hired / stats.total
 
-# --- 5) Top 10 clusters (decrescente) ---
-top10 = stats.sort_values('pct', ascending=False).head(10).reset_index()
-
-# Converter cluster para str (evita reordenação automática)
-top10['cluster'] = top10['cluster'].astype(str)
-
-# --- 6) Preparar para plot (ordenar ascendente para que o maior fique no topo) ---
+# --- 5) Selecionar e ordenar Top 10 ---
+top10 = stats.nlargest(10, 'pct').reset_index()
+# Para plot horizontal com maior % no topo, ordene ascendente
 top10_plot = top10.sort_values('pct', ascending=True)
 
-# --- 7) Plot horizontal simples ---
+# Converter cluster para string para manter a ordem
+top10_plot['cluster'] = top10_plot['cluster'].astype(str)
+
+# --- 6) Construir o gráfico ---
 fig = px.bar(
     top10_plot,
     x='pct',
     y='cluster',
     orientation='h',
-    text=top10_plot['pct'].map(lambda v: f"{v:.1f}%"),
-    labels={'cluster':'Cluster','pct':'% Contratados'}
+    text='pct',
+    labels={'cluster':'Cluster', 'pct':'% Contratados'},
 )
 
-# Textos fora das barras
-fig.update_traces(textposition='outside')
+# Formatar rótulos como porcentagem e posicionar fora da barra
+fig.update_traces(texttemplate='%{text:.1f}%', textposition='outside')
 
-# Títulos
+# Ajustar layout (títulos e margens)
 fig.update_layout(
     xaxis_title='% de Contratação',
     yaxis_title='Cluster',
-    margin=dict(l=60, r=20, t=40, b=40)
+    margin=dict(l=80, r=20, t=40, b=40)
 )
 
+# --- 7) Exibir no Streamlit ---
 st.subheader("Top 10 Clusters por % de Contratação")
 st.plotly_chart(fig, use_container_width=True)
-
 
 # 8) Conclusões finais detalhadas
 st.subheader("Conclusões Finais")
