@@ -25,26 +25,45 @@ if 'cluster' not in df.columns or 'is_hired' not in df.columns:
     st.error("O CSV precisa ter as colunas 'cluster' e 'is_hired'. Gere novamente o df_final.csv após essas colunas existirem.")
     st.stop()
 
-# 4) Calcular estatísticas
-stats = df.groupby('cluster')['is_hired'] \
-          .agg(total_hired='sum', total='count')
-stats['pct'] = stats['total_hired'] / stats['total'] * 100
+# --- 4) Cálculo das estatísticas por cluster ---
+stats = (
+    df
+    .groupby('cluster')['is_hired']
+    .agg(total_hired='sum', total='count')
+)
+stats['pct'] = 100 * stats.total_hired / stats.total
 
-# Extrair apenas Top 10 e ordenar
-top10 = stats.nlargest(10, 'pct').reset_index()
-# Manter ordem no eixo
+# --- 5) Seleciona e ordena os Top 10 clusters ---
+top10 = (
+    stats
+    .sort_values('pct', ascending=False)
+    .head(10)
+    .reset_index()
+)
+# Converter cluster para str para não bagunçar a ordem
 top10['cluster'] = top10['cluster'].astype(str)
-order = top10['cluster'].tolist()
 
-# 5) Plot dos Top 10
+# Definir a ordem explícita no eixo y
+ordem = top10['cluster'].tolist()
+
+# --- 6) Plot Horizontal dos Top 10 ---
 st.subheader("Top 10 Clusters por % de Contratação")
 fig = px.bar(
-    top10, x='pct', y='cluster', orientation='h',
+    top10,
+    x='pct',
+    y='cluster',
+    orientation='h',
     text=top10['pct'].map(lambda v: f"{v:.1f}%"),
-    labels={'cluster':'Cluster','pct':'% Contratação'},
-    category_orders={'cluster': order}
+    labels={'cluster':'Cluster','pct':'% Contratados'},
+    category_orders={'cluster': ordem}
 )
-fig.update_layout(yaxis={'categoryorder':'array','categoryarray':order})
+# Ajustes finos
+fig.update_layout(
+    yaxis_title='Cluster',
+    xaxis_title='% de Contratação',
+    yaxis={'categoryorder':'array','categoryarray':ordem}
+)
+fig.update_traces(textposition='outside')
 st.plotly_chart(fig, use_container_width=True)
 
 # 6) Conclusões finais detalhadas
@@ -52,6 +71,7 @@ st.subheader("Conclusões Finais")
 
 st.markdown("""
 **1. Perfil Técnico de Alta Contratação (Clusters 120, 40, 117, 10)**  
+
   1.1. **Certificações**  
    - SQL Server (MS 70-431) e Oracle (DBA/Solaris) aparecem repetidamente.  
    - Linux LPIC I e ITIL v3 sugerem domínio de infraestrutura.  
